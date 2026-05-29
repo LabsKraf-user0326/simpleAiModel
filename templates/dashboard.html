@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Smart Todo — Unified Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root { color-scheme: light dark; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+           max-width: 1100px; margin: 2rem auto; padding: 0 1rem; line-height: 1.5; }
+    h1 { margin-bottom: 0.25rem; }
+    h2 { margin-top: 2.2rem; border-bottom: 1px solid #ddd; padding-bottom: 0.4rem; }
+    h3 { margin: 1rem 0 0.4rem; font-size: 1rem; }
+    p.sub { color: #666; margin-top: 0; }
+
+    section { margin-top: 1rem; }
+    .row { display: flex; gap: 0.5rem; flex-wrap: wrap; align-items: center; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 760px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    input, select, textarea { font-family: inherit; }
+    input[type=text], input[type=number], select, textarea {
+      padding: 0.5rem 0.7rem; font-size: 0.95rem;
+      border: 1px solid #bbb; border-radius: 6px; background: rgba(255,255,255,0.04);
+    }
+    input[type=text].grow { flex: 1; min-width: 200px; }
+    textarea { width: 100%; box-sizing: border-box; resize: vertical; font-family: ui-monospace, Menlo, monospace; font-size: 0.85rem; }
+    label { font-size: 0.9rem; color: #444; display: block; margin-bottom: 0.2rem; }
+
+    button { padding: 0.55rem 1rem; font-size: 0.95rem; border: 0; border-radius: 6px;
+             background: #2563eb; color: white; cursor: pointer; }
+    button.secondary { background: #6b7280; }
+    button.ghost     { background: transparent; color: #2563eb; border: 1px solid #2563eb; }
+    button.danger    { background: #b91c1c; }
+    button:disabled  { opacity: 0.5; cursor: progress; }
+
+    .card { padding: 0.85rem 1rem; border: 1px solid #ddd; border-radius: 8px;
+            background: rgba(127,127,127,0.04); }
+    .result { margin-top: 0.75rem; padding: 0.85rem 1rem; border-radius: 8px;
+              border: 1px solid #ddd; background: rgba(127,127,127,0.06); }
+
+    .badge { display: inline-block; padding: 0.15rem 0.6rem; border-radius: 999px;
+             font-weight: 600; font-size: 0.9rem; }
+    .High { background: #fee2e2; color: #991b1b; }
+    .Medium { background: #fef3c7; color: #92400e; }
+    .Low { background: #dcfce7; color: #166534; }
+    .bar { height: 8px; background: #e5e7eb; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+    .bar > div { height: 100%; background: #2563eb; }
+
+    pre.console { background: #0b1020; color: #d6e0ff; padding: 0.85rem 1rem;
+                  border-radius: 8px; max-height: 360px; overflow: auto;
+                  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+                  font-size: 0.85rem; white-space: pre-wrap; word-break: break-word;
+                  margin-top: 0.5rem; }
+    pre.console .info  { color: #93c5fd; }
+    pre.console .error { color: #fca5a5; }
+    pre.console .warn  { color: #fcd34d; }
+    pre.console .ok    { color: #86efac; }
+
+    .status-pill { font-size: 0.85rem; padding: 0.15rem 0.55rem; border-radius: 999px;
+                   background: #e5e7eb; color: #374151; margin-left: 0.5rem; }
+    .status-pill.running { background: #dbeafe; color: #1e40af; }
+    .status-pill.ok      { background: #dcfce7; color: #166534; }
+    .status-pill.fail    { background: #fee2e2; color: #991b1b; }
+
+    code { background: rgba(127,127,127,0.12); padding: 0.1rem 0.35rem; border-radius: 4px; }
+    ul.examples { padding-left: 1.25rem; margin: 0.4rem 0 0; }
+    ul.examples li { cursor: pointer; color: #2563eb; }
+    ul.examples li:hover { text-decoration: underline; }
+
+    table.stages { width: 100%; border-collapse: collapse; margin-top: 0.4rem; }
+    table.stages th, table.stages td { padding: 0.35rem 0.4rem; text-align: left; border-bottom: 1px solid #ddd; }
+    table.stages input { width: 100%; box-sizing: border-box; }
+    table.stages td.actions { width: 60px; text-align: right; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                   gap: 0.6rem; margin-top: 0.6rem; }
+    .metric { padding: 0.6rem 0.8rem; border-radius: 8px; border: 1px solid #ddd; background: rgba(127,127,127,0.04); }
+    .metric .label { font-size: 0.75rem; color: #666; text-transform: uppercase; letter-spacing: 0.04em; }
+    .metric .value { font-size: 1.4rem; font-weight: 600; }
+    .metric.bad  .value { color: #b91c1c; }
+    .metric.good .value { color: #166534; }
+
+    svg.loadshape { width: 100%; height: 180px; background: rgba(127,127,127,0.05); border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Smart Todo — Unified Dashboard</h1>
+  <p class="sub">Phase 1 prediction widget · Phase 2 load-test builder · Phase 3 self-healing tests · all from one server.</p>
+
+  <!-- ============== Phase 1 ============== -->
+  <h2>Phase 1 — Try a prediction</h2>
+  <section>
+    <form id="f" class="row">
+      <input id="task" type="text" class="grow" placeholder="e.g. Fix production bug" autofocus required />
+      <button type="submit">Predict</button>
+    </form>
+    <div id="out" class="result" hidden></div>
+    <p style="margin-top:.5rem;color:#666;">Try one:</p>
+    <ul class="examples">
+      <li>Fix production outage in payments service</li>
+      <li>Prepare quarterly business review deck</li>
+      <li>Read newsletter from cloud provider</li>
+    </ul>
+  </section>
+
+  <!-- ============== Phase 2 ============== -->
+  <h2>Phase 2 — Load-test builder <span id="p2-status" class="status-pill">idle</span></h2>
+  <section class="grid-2">
+
+    <!-- Request builder -->
+    <div class="card">
+      <h3>1 · Request</h3>
+      <label>Paste a <code>curl</code> command (optional)</label>
+      <textarea id="curl-paste" rows="4" placeholder="curl -X POST 'http://localhost:5000/predict' -H 'content-type: application/json' -d '{&quot;task&quot;:&quot;Fix bug&quot;}'"></textarea>
+      <div class="row" style="margin-top:.4rem;">
+        <button class="ghost" id="parse-curl">Parse curl</button>
+        <button class="ghost" id="fill-predict">Preset: /predict (this server)</button>
+        <button class="ghost" id="fill-health">Preset: /health</button>
+      </div>
+
+      <div style="margin-top:.8rem;">
+        <label>URL</label>
+        <input id="req-url" type="text" class="grow" style="width:100%;" placeholder="http://localhost:5000/predict" />
+      </div>
+      <div class="row" style="margin-top:.4rem;">
+        <div style="flex:1;">
+          <label>Method</label>
+          <select id="req-method" style="width:100%;">
+            <option>GET</option><option>POST</option><option>PUT</option>
+            <option>PATCH</option><option>DELETE</option>
+          </select>
+        </div>
+        <div style="flex:1;">
+          <label>Think time (ms / iteration)</label>
+          <input id="req-think" type="number" min="0" value="100" style="width:100%;" />
+        </div>
+      </div>
+      <div style="margin-top:.4rem;">
+        <label>Headers (one per line: <code>Key: value</code>)</label>
+        <textarea id="req-headers" rows="3" placeholder="content-type: application/json"></textarea>
+      </div>
+      <div style="margin-top:.4rem;">
+        <label>Body</label>
+        <textarea id="req-body" rows="3" placeholder='{"task":"Fix production bug"}'></textarea>
+      </div>
+    </div>
+
+    <!-- Load shape -->
+    <div class="card">
+      <h3>2 · Load shape</h3>
+      <div class="row">
+        <label style="margin-bottom:0;">Preset:</label>
+        <select id="shape-preset">
+          <option value="ramp">Ramp-up (1 → 10 → 50)</option>
+          <option value="spike">Spike (5 → 100 → 5)</option>
+          <option value="stress">Stress (linear to 100)</option>
+          <option value="smoke">Smoke (1 VU, 30s)</option>
+          <option value="custom">Custom (don't change)</option>
+        </select>
+        <button class="ghost" id="apply-preset">Apply</button>
+      </div>
+
+      <table class="stages" id="stages-table">
+        <thead><tr><th style="width:45%">Duration</th><th>Target VUs</th><th class="actions"></th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="row" style="margin-top:.4rem;">
+        <button class="ghost" id="add-stage">+ stage</button>
+        <span style="color:#666;font-size:.85rem;">
+          Duration: <code>10s</code>, <code>2m</code>, <code>1m30s</code>. Target = VU count at end of stage.
+        </span>
+      </div>
+
+      <h3 style="margin-top:1rem;">Execution pattern</h3>
+      <svg id="loadshape" class="loadshape" viewBox="0 0 600 180" preserveAspectRatio="none"></svg>
+      <div id="shape-summary" style="color:#666;font-size:.85rem;margin-top:.3rem;"></div>
+
+      <div class="row" style="margin-top:.4rem;">
+        <div style="flex:1;">
+          <label>Threshold: p95 latency (ms)</label>
+          <input id="th-p95" type="number" min="1" value="5000" style="width:100%;" />
+        </div>
+        <div style="flex:1;">
+          <label>Threshold: max failure rate</label>
+          <input id="th-fail" type="number" min="0" max="1" step="0.01" value="0.5" style="width:100%;" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="margin-top:1rem;">
+    <div class="row">
+      <button id="run-load">Run load test</button>
+      <button class="secondary" id="clear-p2">Clear output</button>
+    </div>
+
+    <div id="report" class="card" style="margin-top:0.75rem;" hidden>
+      <h3 style="margin-top:0;">Report</h3>
+      <div id="report-meta" style="color:#666;font-size:.85rem;"></div>
+      <div id="metric-grid" class="metric-grid"></div>
+    </div>
+
+    <pre id="p2-console" class="console">Output will stream here while the test runs.</pre>
+    <p style="color:#666;font-size:0.9rem;">
+      Reports also land on disk: <code>reports/load-summary.{json,txt}</code>.
+    </p>
+  </section>
+
+  <!-- ============== Phase 3 ============== -->
+  <h2>Phase 3 — Self-healing tests <span id="p3-status" class="status-pill">idle</span></h2>
+  <section>
+    <div class="row">
+      <button data-scenario="tests">Run tests (original API)</button>
+      <button data-scenario="tests-mutated">Run tests (mutated API → :5001)</button>
+      <button class="secondary" data-clear="p3-console">Clear</button>
+    </div>
+    <pre id="p3-console" class="console">Original returns priority/confidence. Mutated returns level/score — resolver should keep the suite green and log WARNINGs about the rename.</pre>
+  </section>
+
+  <p style="color:#888;font-size:0.85rem;margin-top:2rem;">
+    Endpoints:
+    <code>POST /predict</code> ·
+    <code>GET /health</code> ·
+    <code>POST /api/run/load</code> ·
+    <code>GET /api/run/&lt;tests|tests-mutated&gt;</code>
+  </p>
+
+<script>
+// =================== Phase 1 ===================
+const f = document.getElementById('f');
+const taskInput = document.getElementById('task');
+const out = document.getElementById('out');
+const predictBtn = f.querySelector('button');
+
+document.querySelectorAll('ul.examples li').forEach(li => {
+  li.addEventListener('click', () => { taskInput.value = li.textContent; f.requestSubmit(); });
+});
+
+f.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const task = taskInput.value.trim();
+  if (!task) return;
+  predictBtn.disabled = true; out.hidden = false; out.innerHTML = 'Predicting…';
+  try {
+    const r = await fetch('/predict', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ task }),
+    });
+    const data = await r.json();
+    if (!r.ok) {
+      out.innerHTML = '<strong>Error:</strong> ' + (data.error || r.statusText);
+    } else {
+      const pct = (data.confidence * 100).toFixed(1);
+      out.innerHTML = `
+        <div><strong>Task:</strong> ${task.replace(/[<>]/g, '')}</div>
+        <div style="margin-top:.5rem;">
+          <span class="badge ${data.priority}">${data.priority}</span>
+          <span style="margin-left:.5rem;color:#666;">confidence ${pct}%</span>
+        </div>
+        <div class="bar"><div style="width:${pct}%"></div></div>`;
+    }
+  } catch (err) { out.innerHTML = '<strong>Request failed:</strong> ' + err; }
+  finally { predictBtn.disabled = false; }
+});
+
+// =================== Phase 2 — load builder ===================
+const PRESETS = {
+  ramp:  [{duration:'20s',target:1},{duration:'30s',target:1},{duration:'20s',target:10},{duration:'30s',target:10},{duration:'20s',target:50},{duration:'60s',target:50},{duration:'20s',target:0}],
+  spike: [{duration:'20s',target:5},{duration:'5s',target:100},{duration:'60s',target:100},{duration:'5s',target:5},{duration:'45s',target:5},{duration:'5s',target:0}],
+  stress:[{duration:'30s',target:25},{duration:'30s',target:50},{duration:'30s',target:75},{duration:'30s',target:100},{duration:'20s',target:0}],
+  smoke: [{duration:'30s',target:1}],
+};
+
+const stagesBody = document.querySelector('#stages-table tbody');
+
+function makeStageRow(stage) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input type="text" class="dur" value="${stage.duration}" /></td>
+    <td><input type="number" min="0" class="tgt" value="${stage.target}" /></td>
+    <td class="actions"><button class="ghost row-del" title="remove">×</button></td>`;
+  tr.querySelector('.row-del').addEventListener('click', () => { tr.remove(); redraw(); });
+  tr.querySelectorAll('input').forEach(i => i.addEventListener('input', redraw));
+  return tr;
+}
+function renderStages(stages) {
+  stagesBody.innerHTML = '';
+  stages.forEach(s => stagesBody.appendChild(makeStageRow(s)));
+  redraw();
+}
+function readStages() {
+  return Array.from(stagesBody.querySelectorAll('tr')).map(tr => ({
+    duration: tr.querySelector('.dur').value.trim(),
+    target: Number(tr.querySelector('.tgt').value || 0),
+  })).filter(s => s.duration);
+}
+function parseDuration(d) {
+  if (typeof d === 'number') return d;
+  let total = 0, matched = false;
+  const re = /(\d+)\s*([smh])/gi;
+  let m;
+  while ((m = re.exec(d)) !== null) {
+    matched = true;
+    const n = Number(m[1]);
+    if (m[2].toLowerCase() === 's') total += n;
+    else if (m[2].toLowerCase() === 'm') total += n * 60;
+    else if (m[2].toLowerCase() === 'h') total += n * 3600;
+  }
+  return matched ? total : Number(d) || 0;
+}
+function fmtDuration(s) {
+  if (s < 60) return s + 's';
+  const m = Math.floor(s/60), r = s%60;
+  return r ? m+'m'+r+'s' : m+'m';
+}
+
+// SVG load-shape chart
+const svg = document.getElementById('loadshape');
+const shapeSummary = document.getElementById('shape-summary');
+function redraw() {
+  const stages = readStages();
+  const W = 600, H = 180, PAD = 24;
+  let total = 0, maxV = 0;
+  const pts = [{t:0, v:0}];
+  for (const s of stages) { const d = parseDuration(s.duration); total += d; maxV = Math.max(maxV, s.target); pts.push({t: total, v: s.target}); }
+  if (maxV < 1) maxV = 1;
+  if (total < 1) total = 1;
+  const sx = (t) => PAD + (W - 2*PAD) * (t/total);
+  const sy = (v) => H - PAD - (H - 2*PAD) * (v/maxV);
+
+  let body = '';
+  // grid lines (5)
+  for (let i=0; i<=4; i++) {
+    const y = PAD + i * (H - 2*PAD) / 4;
+    body += `<line x1="${PAD}" y1="${y}" x2="${W-PAD}" y2="${y}" stroke="rgba(127,127,127,0.25)" stroke-width="1"/>`;
+  }
+  // filled area
+  let path = `M ${sx(0)} ${sy(0)}`;
+  pts.forEach(p => { path += ` L ${sx(p.t)} ${sy(p.v)}`; });
+  path += ` L ${sx(total)} ${sy(0)} Z`;
+  body += `<path d="${path}" fill="rgba(37,99,235,0.20)" stroke="none"/>`;
+  // line
+  let line = `M ${sx(0)} ${sy(0)}`;
+  pts.forEach(p => { line += ` L ${sx(p.t)} ${sy(p.v)}`; });
+  body += `<path d="${line}" fill="none" stroke="#2563eb" stroke-width="2"/>`;
+  // stage break markers
+  let acc = 0;
+  for (const s of stages) {
+    acc += parseDuration(s.duration);
+    body += `<line x1="${sx(acc)}" y1="${PAD}" x2="${sx(acc)}" y2="${H-PAD}" stroke="rgba(127,127,127,0.25)" stroke-dasharray="3,3"/>`;
+  }
+  // axis labels
+  body += `<text x="${PAD}" y="${H-6}" font-size="10" fill="#888">0s</text>`;
+  body += `<text x="${W-PAD}" y="${H-6}" font-size="10" fill="#888" text-anchor="end">${fmtDuration(total)}</text>`;
+  body += `<text x="${PAD}" y="${PAD-6}" font-size="10" fill="#888">${maxV} VUs peak</text>`;
+
+  svg.innerHTML = body;
+  shapeSummary.textContent = `${stages.length} stages · total ${fmtDuration(total)} · peak ${maxV} VUs`;
+}
+
+document.getElementById('add-stage').addEventListener('click', () => {
+  stagesBody.appendChild(makeStageRow({duration:'30s', target:10})); redraw();
+});
+document.getElementById('apply-preset').addEventListener('click', () => {
+  const p = document.getElementById('shape-preset').value;
+  if (p === 'custom') return;
+  renderStages(PRESETS[p].map(s => ({...s})));
+});
+
+// curl parser
+function parseCurl(s) {
+  s = s.replace(/\\\s*\n\s*/g, ' ').trim();
+  const tokens = []; let i = 0;
+  while (i < s.length) {
+    while (i < s.length && /\s/.test(s[i])) i++;
+    if (i >= s.length) break;
+    let token = '';
+    if (s[i] === "'" || s[i] === '"') {
+      const q = s[i++];
+      while (i < s.length && s[i] !== q) {
+        if (s[i] === '\\' && i+1 < s.length) { token += s[++i]; i++; }
+        else token += s[i++];
+      }
+      i++;
+    } else {
+      while (i < s.length && !/\s/.test(s[i])) token += s[i++];
+    }
+    tokens.push(token);
+  }
+  if (tokens[0] === 'curl') tokens.shift();
+  const out = { url: '', method: 'GET', headers: {}, body: '' };
+  for (let j = 0; j < tokens.length; j++) {
+    const t = tokens[j];
+    if (t === '-X' || t === '--request') out.method = (tokens[++j] || 'GET').toUpperCase();
+    else if (t === '-H' || t === '--header') {
+      const h = tokens[++j] || ''; const idx = h.indexOf(':');
+      if (idx > 0) out.headers[h.slice(0, idx).trim()] = h.slice(idx+1).trim();
+    }
+    else if (t === '-d' || t === '--data' || t === '--data-raw' || t === '--data-binary' || t === '--data-urlencode') {
+      out.body = tokens[++j] || ''; if (out.method === 'GET') out.method = 'POST';
+    }
+    else if (t === '--url') out.url = tokens[++j] || '';
+    else if (t.startsWith('-')) { /* ignore other flags; consume value if it looks like one */ }
+    else if (!out.url) out.url = t;
+  }
+  return out;
+}
+
+document.getElementById('parse-curl').addEventListener('click', () => {
+  const raw = document.getElementById('curl-paste').value.trim();
+  if (!raw) return;
+  try {
+    const p = parseCurl(raw);
+    document.getElementById('req-url').value = p.url;
+    document.getElementById('req-method').value = p.method;
+    document.getElementById('req-headers').value =
+      Object.entries(p.headers).map(([k,v]) => `${k}: ${v}`).join('\n');
+    document.getElementById('req-body').value = p.body;
+  } catch (e) { alert('Failed to parse curl: ' + e.message); }
+});
+document.getElementById('fill-predict').addEventListener('click', () => {
+  document.getElementById('req-url').value = window.location.origin + '/predict';
+  document.getElementById('req-method').value = 'POST';
+  document.getElementById('req-headers').value = 'content-type: application/json';
+  document.getElementById('req-body').value = '{"task":"Fix production bug"}';
+});
+document.getElementById('fill-health').addEventListener('click', () => {
+  document.getElementById('req-url').value = window.location.origin + '/health';
+  document.getElementById('req-method').value = 'GET';
+  document.getElementById('req-headers').value = '';
+  document.getElementById('req-body').value = '';
+});
+
+// Console helpers
+function consoleEl(phase) { return document.getElementById('p' + phase + '-console'); }
+function statusEl(phase)  { return document.getElementById('p' + phase + '-status'); }
+function append(node, text, cls) {
+  const span = document.createElement('span');
+  if (cls) span.className = cls;
+  span.textContent = text + '\n';
+  node.appendChild(span);
+  node.scrollTop = node.scrollHeight;
+}
+function setStatus(phase, label, cls) {
+  const s = statusEl(phase); s.textContent = label; s.className = 'status-pill ' + (cls || '');
+}
+
+// Report cards
+function fmtMs(v) { return v == null ? '—' : (v < 1 ? '<1ms' : Math.round(v) + 'ms'); }
+function fmtNum(v) { return v == null ? '—' : Number(v).toLocaleString(); }
+function fmtPct(v) { return v == null ? '—' : (v * 100).toFixed(2) + '%'; }
+function renderReport(summary, meta) {
+  const m = summary.metrics || {};
+  const v = (k, s) => m[k] && m[k].values ? m[k].values[s] : undefined;
+  const reqs   = v('http_reqs', 'count');
+  const rate   = v('http_reqs', 'rate');
+  const failed = v('http_req_failed', 'rate');
+  const dur = m['http_req_duration'] && m['http_req_duration'].values || {};
+  const failedBad = (failed || 0) > 0.05;
+  const cards = [
+    {label:'Requests',     value: fmtNum(reqs)},
+    {label:'Throughput',   value: rate ? rate.toFixed(1) + ' req/s' : '—'},
+    {label:'Failure rate', value: fmtPct(failed), cls: failedBad ? 'bad' : 'good'},
+    {label:'p50 latency',  value: fmtMs(dur['med'])},
+    {label:'p95 latency',  value: fmtMs(dur['p(95)'])},
+    {label:'p99 latency',  value: fmtMs(dur['p(99)'])},
+    {label:'max latency',  value: fmtMs(dur['max'])},
+    {label:'avg latency',  value: fmtMs(dur['avg'])},
+  ];
+  document.getElementById('metric-grid').innerHTML = cards.map(c =>
+    `<div class="metric ${c.cls || ''}"><div class="label">${c.label}</div><div class="value">${c.value}</div></div>`
+  ).join('');
+  document.getElementById('report-meta').textContent = meta || '';
+  document.getElementById('report').hidden = false;
+}
+
+// Run load test (POST + stream)
+let loadAbort = null;
+document.getElementById('clear-p2').addEventListener('click', () => {
+  consoleEl(2).innerHTML = '';
+  document.getElementById('report').hidden = true;
+});
+document.getElementById('run-load').addEventListener('click', async () => {
+  const url = document.getElementById('req-url').value.trim();
+  if (!url) { alert('URL is required'); return; }
+  const method = document.getElementById('req-method').value;
+  const headersText = document.getElementById('req-headers').value;
+  const headers = {};
+  headersText.split('\n').forEach(line => {
+    const idx = line.indexOf(':');
+    if (idx > 0) headers[line.slice(0, idx).trim()] = line.slice(idx+1).trim();
+  });
+  const body = document.getElementById('req-body').value;
+  const stages = readStages();
+  if (!stages.length) { alert('Add at least one stage'); return; }
+  const config = {
+    url, method, headers, body, stages,
+    think_ms: Number(document.getElementById('req-think').value || 100),
+    p95_threshold: Number(document.getElementById('th-p95').value || 5000),
+    fail_threshold: Number(document.getElementById('th-fail').value || 0.5),
+  };
+
+  const cn = consoleEl(2);
+  cn.innerHTML = '';
+  document.getElementById('report').hidden = true;
+  setStatus(2, 'running…', 'running');
+  document.getElementById('run-load').disabled = true;
+
+  loadAbort = new AbortController();
+  try {
+    const res = await fetch('/api/run/load', {
+      method: 'POST', headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(config), signal: loadAbort.signal,
+    });
+    if (!res.ok) {
+      const t = await res.text();
+      append(cn, '✗ ' + t, 'error'); setStatus(2, 'error', 'fail');
+      return;
+    }
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let idx;
+      while ((idx = buf.indexOf('\n\n')) >= 0) {
+        const chunk = buf.slice(0, idx).trim(); buf = buf.slice(idx + 2);
+        if (!chunk.startsWith('data: ')) continue;
+        const evt = JSON.parse(chunk.slice(6));
+        if (evt.type === 'start')      append(cn, '▶ ' + evt.label, 'info');
+        else if (evt.type === 'info')  append(cn, '• ' + evt.text, 'info');
+        else if (evt.type === 'error') append(cn, '✗ ' + evt.text, 'error');
+        else if (evt.type === 'line') {
+          let cls = '';
+          if (/✓|passed/i.test(evt.text)) cls = 'ok';
+          else if (/✗|FAIL|ERROR/i.test(evt.text)) cls = 'error';
+          else if (/WARNING|threshold/i.test(evt.text)) cls = 'warn';
+          append(cn, evt.text, cls);
+        }
+        else if (evt.type === 'summary') {
+          renderReport(evt.data, evt.meta || '');
+        }
+        else if (evt.type === 'end') {
+          const ok = evt.exit_code === 0;
+          append(cn, '— done (exit ' + evt.exit_code + ')', ok ? 'ok' : 'error');
+          setStatus(2, ok ? 'exit 0' : 'exit ' + evt.exit_code, ok ? 'ok' : 'fail');
+        }
+      }
+    }
+  } catch (err) {
+    append(cn, '✗ ' + err.message, 'error');
+    setStatus(2, 'error', 'fail');
+  } finally {
+    document.getElementById('run-load').disabled = false;
+    loadAbort = null;
+  }
+});
+
+// =================== Phase 3 ===================
+document.querySelectorAll('button[data-scenario]').forEach(b => {
+  b.addEventListener('click', () => runScenarioSSE(b.dataset.scenario));
+});
+document.querySelectorAll('button[data-clear]').forEach(b => {
+  b.addEventListener('click', () => document.getElementById(b.dataset.clear).innerHTML = '');
+});
+
+let activeES = null;
+function runScenarioSSE(kind) {
+  if (activeES) { alert('A run is already in progress.'); return; }
+  const cn = consoleEl(3); cn.innerHTML = '';
+  setStatus(3, 'running…', 'running');
+  document.querySelectorAll('button[data-scenario]').forEach(b => b.disabled = true);
+
+  const es = new EventSource('/api/run/' + encodeURIComponent(kind));
+  activeES = es;
+  es.onmessage = (msg) => {
+    try {
+      const evt = JSON.parse(msg.data);
+      if (evt.type === 'start')      append(cn, '▶ ' + evt.label, 'info');
+      else if (evt.type === 'info')  append(cn, '• ' + evt.text, 'info');
+      else if (evt.type === 'error') append(cn, '✗ ' + evt.text, 'error');
+      else if (evt.type === 'line') {
+        let cls = '';
+        const t = evt.text;
+        if (/PASSED|✓|passed/i.test(t)) cls = 'ok';
+        else if (/FAILED|ERROR|✗|fail/i.test(t)) cls = 'error';
+        else if (/WARNING/i.test(t)) cls = 'warn';
+        append(cn, t, cls);
+      } else if (evt.type === 'end') {
+        const ok = evt.exit_code === 0;
+        append(cn, '— done (exit ' + evt.exit_code + ')', ok ? 'ok' : 'error');
+        setStatus(3, ok ? 'exit 0' : 'exit ' + evt.exit_code, ok ? 'ok' : 'fail');
+        es.close(); activeES = null;
+        document.querySelectorAll('button[data-scenario]').forEach(b => b.disabled = false);
+      }
+    } catch (e) {}
+  };
+  es.onerror = () => {
+    append(cn, '✗ stream closed unexpectedly', 'error');
+    setStatus(3, 'error', 'fail');
+    es.close(); activeES = null;
+    document.querySelectorAll('button[data-scenario]').forEach(b => b.disabled = false);
+  };
+}
+
+// Initial render: default to ramp-up preset so the chart isn't empty
+renderStages(PRESETS.ramp.map(s => ({...s})));
+document.getElementById('fill-predict').click();
+</script>
+</body>
+</html>

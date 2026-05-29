@@ -1,0 +1,201 @@
+task,priority
+Fix production outage in payments service,High
+Patch critical security vulnerability in auth module,High
+Resolve P0 incident on checkout API,High
+Restore database after replica failure,High
+Hotfix login bug blocking all users,High
+Investigate data leak reported by security team,High
+Roll back broken deployment on order service,High
+Mitigate DDoS attack on public gateway,High
+Fix urgent bug causing duplicate charges,High
+Resolve SEV-1 ticket from customer support,High
+Recover lost data after migration failure,High
+Stop runaway job draining production database,High
+Restore broken CI pipeline blocking releases,High
+Fix critical regression in search ranking,High
+Patch zero-day in third-party library,High
+Resolve outage in EU region by end of day,High
+Fix broken SSL certificate before expiry tonight,High
+Address PCI compliance violation flagged in audit,High
+Fix corrupted user records in production database,High
+Repair broken Kafka consumer dropping events,High
+Respond to customer escalation about lost orders,High
+Fix urgent deadline-blocking bug for tomorrow's launch,High
+Restore failing health checks on payment workers,High
+Patch SQL injection vulnerability in admin API,High
+Fix broken refund flow losing money for customers,High
+Resolve memory leak crashing production pods,High
+Hotfix mobile app crash on iOS 17,High
+Fix payment webhook failures affecting top customer,High
+Stop production data being written to staging,High
+Address legal request for urgent data takedown,High
+Fix broken alerting that hid last night's outage,High
+Resolve disk full alerts on primary database,High
+Patch authentication bypass discovered by pentester,High
+Fix urgent shipping label bug before Black Friday,High
+Restore broken Stripe integration in checkout,High
+Resolve P1 bug in subscription renewal job,High
+Fix urgent issue with tax calculation on invoices,High
+Recover from accidental table drop in prod,High
+Patch CVE affecting our gateway service,High
+Fix login outage affecting enterprise tenants,High
+Stop the bleed: signups failing at high rate,High
+Hotfix dashboard returning 500 errors for all users,High
+Resolve incident with webhook deliveries failing for hours,High
+Fix urgent bug causing wrong totals on orders,High
+Patch broken OAuth flow blocking SSO logins,High
+Restore deleted production index causing slow queries,High
+Address urgent compliance deadline by Friday,High
+Fix broken cron preventing nightly reports from running,High
+Resolve customer-reported outage in API region us-west-2,High
+Hotfix infinite loop pegging CPU in prod,High
+Fix broken email delivery to enterprise accounts,High
+Patch race condition causing double bookings,High
+Restore lost configuration after failed deploy,High
+Fix urgent issue blocking onboarding flow,High
+Respond to ransomware alert from security team,High
+Fix critical bug in identity verification service,High
+Patch vulnerability flagged by external auditor,High
+Resolve outage in primary search cluster,High
+Fix urgent bug breaking partner integrations,High
+Hotfix payment retry storm overloading processor,High
+Fix data corruption in user profile table,High
+Restore broken redirects causing SEO drop,High
+Patch broken webhook signature verification,High
+Stop fraud spike from compromised API keys,High
+Fix urgent bug in invoicing before month-end close,High
+Resolve TLS handshake failures across services,High
+Fix critical bug where orders submitted but not processed,High
+Hotfix cache poisoning serving wrong user data,High
+Address production database failover not triggering,High
+Fix urgent bug in 2FA blocking user logins,High
+Review pull request from teammate on billing service,Medium
+Prepare slides for sprint demo on Thursday,Medium
+Update API documentation for v2 endpoints,Medium
+Schedule onboarding session for new hire,Medium
+Draft RFC for caching layer,Medium
+Refactor user service to use new logger,Medium
+Plan migration from MySQL 5.7 to 8.0,Medium
+Run weekly engineering team sync,Medium
+Triage open issues in support queue,Medium
+Write design doc for notification service,Medium
+Review architecture proposal from platform team,Medium
+Update internal runbook for deploy process,Medium
+Prepare quarterly business review deck,Medium
+Set up staging environment for QA team,Medium
+Estimate stories for next sprint planning,Medium
+Pair with junior engineer on feature work,Medium
+Improve test coverage on order service,Medium
+Refactor duplicate code in payments module,Medium
+Add integration tests for webhook endpoints,Medium
+Migrate config from YAML to TOML,Medium
+Update CI workflow to use new runners,Medium
+Sync with PM on roadmap for Q3,Medium
+Review job description for senior backend role,Medium
+Conduct interview with backend candidate,Medium
+Walk through codebase with new team member,Medium
+Prepare brown bag talk on observability,Medium
+Update Confluence page for on-call rotation,Medium
+Draft proposal for adopting feature flags,Medium
+Schedule architecture review for inventory service,Medium
+Audit IAM roles in staging environment,Medium
+Plan capacity review for upcoming launch,Medium
+Refresh dashboards for SLO tracking,Medium
+Add structured logging to auth service,Medium
+Improve error messages in checkout API,Medium
+Refactor legacy cron jobs into scheduler,Medium
+Set up alerting for new metrics endpoint,Medium
+Update dependency versions in shared library,Medium
+Review security policy update from compliance,Medium
+Draft postmortem from last week's incident,Medium
+Schedule retro for completed migration,Medium
+Tune Postgres autovacuum settings,Medium
+Add pagination to admin orders endpoint,Medium
+Migrate logs to centralized aggregator,Medium
+Update terraform modules for VPC changes,Medium
+Set up SSO for internal admin tool,Medium
+Plan rollout strategy for new pricing model,Medium
+Review test plan from QA team,Medium
+Update README for backend services,Medium
+Prepare release notes for next deploy,Medium
+Conduct code review for API redesign,Medium
+Improve CI build time on monorepo,Medium
+Add metrics to background workers,Medium
+Refactor settings module to be environment-driven,Medium
+Update support playbook for refund process,Medium
+Sync with design on new dashboard mockups,Medium
+Add rate limiting to public API endpoints,Medium
+Plan deprecation timeline for legacy endpoints,Medium
+Update terraform state backend configuration,Medium
+Draft hiring plan for next quarter,Medium
+Review benefits enrollment options for team,Medium
+Plan offsite agenda with team leads,Medium
+Update onboarding checklist for engineers,Medium
+Prepare report on cloud cost trends,Medium
+Schedule one-on-ones with direct reports,Medium
+Audit feature flag usage across services,Medium
+Refactor email templates into shared package,Medium
+Set up canary deployment for inventory service,Medium
+Plan database index review for slow queries,Medium
+Update internal style guide for Python services,Medium
+Run sprint retrospective with team,Medium
+Read newsletter from cloud provider,Low
+Watch recorded conference talk on distributed systems,Low
+Browse engineering blog posts saved earlier,Low
+Organize bookmarks into folders,Low
+Tidy up inbox at end of day,Low
+Archive old slack channels,Low
+Update personal LinkedIn summary,Low
+Read book on system design when time permits,Low
+Watch tutorial on new frontend framework,Low
+Skim industry newsletter,Low
+Read whitepaper on consensus algorithms,Low
+Browse new features in editor changelog,Low
+Catch up on team chat threads,Low
+Update notes app with weekly reflections,Low
+Reorganize desktop folders,Low
+Read podcast transcript from last week,Low
+Watch youtube video on rust async runtime,Low
+Listen to engineering podcast during commute,Low
+Read article on prompt engineering,Low
+Skim release notes for new python version,Low
+Update reading list with new books,Low
+Sort through archived emails,Low
+Browse open source projects on github trending,Low
+Read substack on engineering management,Low
+Watch keynote from last week's conference,Low
+Update home setup wiki notes,Low
+Look into hobby project idea when free,Low
+Read about new database released this month,Low
+Watch tutorial series on kubernetes operators,Low
+Browse hacker news comments,Low
+Catch up on twitter list of engineers,Low
+Read backlog of saved articles,Low
+Watch interview with industry leader,Low
+Tidy desk and reorganize cables,Low
+Update mechanical keyboard layout config,Low
+Read fiction book chapter at lunch,Low
+Watch documentary about silicon valley history,Low
+Browse photography blog for inspiration,Low
+Listen to audiobook during walk,Low
+Read newsletter from tech publication,Low
+Skim social feed for industry news,Low
+Look up new restaurant recommendations,Low
+Watch cooking video for weekend plans,Low
+Browse furniture options for home office,Low
+Read review of new headphones,Low
+Watch sports highlights from yesterday,Low
+Skim travel blog for vacation ideas,Low
+Look at language learning app progress,Low
+Read about new coffee brewing method,Low
+Watch youtube short about productivity tips,Low
+Browse plant care community posts,Low
+Tidy up downloads folder,Low
+Update music playlists,Low
+Read fitness blog when free,Low
+Watch nature documentary in evening,Low
+Browse new releases on streaming service,Low
+Read review of new mechanical pencil,Low
+Skim board game reviews,Low
+Watch chess game recap,Low
+Read history article saved last month,Low
